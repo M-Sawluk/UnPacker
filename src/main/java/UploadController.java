@@ -275,7 +275,7 @@ public class UploadController implements Initializable {
         builder.append("  multiline.negate: true" + "\n");
         builder.append("  multiline.match: after" + "\n");
         builder.append("output.logstash:" + "\n");
-        builder.append("  hosts: [\"localhost:5044\"]" + "\n");
+        builder.append("  hosts: [\"logs.tools.finanteq.com:5044\"]" + "\n");
 
         Files.write(Paths.get(dir + "\\filebeat.yml"), builder.toString().getBytes());
     }
