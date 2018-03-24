@@ -40,7 +40,7 @@ public class UploadController implements Initializable {
     public void upload(ActionEvent event) throws IOException, InterruptedException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters()
-                .addAll(new FileChooser.ExtensionFilter("Log files", "*.zip", "*.log", "*.rar"));
+                .addAll(new FileChooser.ExtensionFilter("Log files", "*.*"));
         List<File> uploadedFiles = fileChooser.showOpenMultipleDialog(uploadButton.getScene().getWindow());
         String files = area.getText();
         saveProp("files", files);
