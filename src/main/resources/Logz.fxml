@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<Pane fx:controller="UploadController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="254.0" layoutY="32.0" text="FileBeat Location:" />
+      <Separator layoutX="200.0" layoutY="48.0" prefWidth="200.0" />
+      <TextField layoutX="173.0" layoutY="58.0" prefHeight="25.0" prefWidth="253.0" fx:id="beatLocation" />
+      <Button layoutX="216.0" layoutY="89.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="167.0" text="Choose FileBeat Location" fx:id="dirChooser" onAction="#openDirectoryChooser"/>
+      <Label layoutX="274.0" layoutY="115.0" text="User Name:" />
+      <Separator layoutX="200.0" layoutY="130.0" prefWidth="200.0" />
+      <TextField layoutX="173.0" layoutY="140.0" prefHeight="25.0" prefWidth="253.0" fx:id="userName" />
+      <Label layoutX="258.0" layoutY="170.0" text="Files To Upload:" />
+      <TextArea layoutX="200.0" layoutY="201.0" prefHeight="99.0" prefWidth="200.0" fx:id="area"/>
+      <Button layoutX="243.0" layoutY="320.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="114.0" text="Upload" onAction="#upload" fx:id="uploadButton"/>
+      <Hyperlink layoutX="260.0" layoutY="383.0" text="Go To Kibana" onAction="#openBrowser"/>
+   </children>
+</Pane>
