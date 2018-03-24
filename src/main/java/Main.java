@@ -9,7 +9,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("Logz.fxml"));
-        primaryStage.setTitle("LogzUnpacker");
+        primaryStage.setTitle("UnPacker");
         primaryStage.setScene(new Scene(root, 600, 440));
         primaryStage.show();
 
