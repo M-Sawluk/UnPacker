@@ -65,7 +65,7 @@ public class UploadController implements Initializable {
         }
     }
 
-    private void unzipUploadedFiles(File file) throws IOException, InterruptedException {
+    private void unzipUploadedFiles(File file) throws IOException {
         if (file.getName().endsWith(".zip")) {
             java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(file);
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -97,6 +97,9 @@ public class UploadController implements Initializable {
                 unzipUploadedFiles(file1);
             }
         } else if (isFileToUpload(file.getName())) {
+            if(!file.getName().endsWith(".log")) {
+                Files.move(file.toPath(), Paths.get(LOGS_DIR + "\\" + file.getName()+".log"), StandardCopyOption.REPLACE_EXISTING);
+            }
             Files.move(file.toPath(), Paths.get(LOGS_DIR + "\\" + file.getName()), StandardCopyOption.REPLACE_EXISTING);
         }
     }
