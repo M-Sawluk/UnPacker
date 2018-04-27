@@ -6,14 +6,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Enumeration;
+import java.util.*;
 import java.util.List;
-import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,6 +24,9 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 public class UploadController implements Initializable {
+    private static final String DATE_REGEX = "(\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}\\:\\d{2}\\:\\d{2}\\:\\d{3}.*)|(\\[\\d{4}\\-\\d{2}\\-\\d{2} " +
+        "\\d{2}\\:\\d{2}\\:\\d{2}\\:\\d{3}\\].*)|(\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}\\:\\d{2}\\:\\d{2}\\,\\d{3}\\+\\d{2}\\:\\d{2}\\].*)";
+    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS");
     private String TEMP_DIR;
     private String LOGS_DIR;
     private String[] filesToUpload;
@@ -79,12 +82,14 @@ public class UploadController implements Initializable {
                         unzipUploadedFiles(tempFile);
                     } else {
                         if (isFileToUpload(tempFile.getName()) && !tempFile.getName().endsWith(".sha256sum")) {
-                            if (tempFile.getName().contains(".log")) {
-                                Files.copy(tempFile.toPath(), Paths.get(LOGS_DIR, "\\" + tempFile.getName()),
-                                        StandardCopyOption.REPLACE_EXISTING);
-                            } else {
-                                Files.copy(tempFile.toPath(), Paths.get(LOGS_DIR + "\\" + tempFile.getName() + ".log"),
-                                        StandardCopyOption.REPLACE_EXISTING);
+                            if (tempFile.getName().contains(".log") && verifyDate(tempFile)) {
+//                                Files.copy(tempFile.toPath(), Paths.get(LOGS_DIR, "\\" + tempFile.getName()),
+//                                        StandardCopyOption.REPLACE_EXISTING);
+                                copyLinesByOffest(tempFile);
+                            } else if (verifyDate(tempFile)){
+//                                Files.copy(tempFile.toPath(), Paths.get(LOGS_DIR + "\\" + tempFile.getName() + ".log"),
+//                                        StandardCopyOption.REPLACE_EXISTING);
+                                copyLinesByOffest(tempFile);
                             }
                         }
                     }
@@ -282,4 +287,69 @@ public class UploadController implements Initializable {
 
         Files.write(Paths.get(dir + "\\filebeat.yml"), builder.toString().getBytes());
     }
+
+
+    private boolean verifyDate(File file) throws IOException {
+        List<String> strings = Files.readAllLines(file.toPath());
+
+        for (String string : strings) {
+            if (string.matches(DATE_REGEX)) {
+                DateTime dateTime = formatter.parseDateTime(string.substring(0, 23));
+                if(dateTime.isAfter(new DateTime(2018,4,11,0,0)) && dateTime.isBefore(new DateTime(2018,4,12,0,0))) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void copyLinesByOffest(File file) throws IOException {
+        List<String> strings = Files.readAllLines(file.toPath());
+        List<String> validLines = new LinkedList<>();
+
+        for (String string : strings) {
+            DateTime dateTime = formatter.parseDateTime(string.substring(0, 23));
+            if(dateTime.isAfter(new DateTime(2018,4,11,11,0)) && dateTime.isBefore(new DateTime(2018,4,12,11,5))) {
+                validLines.add(string);
+            } else if (dateTime.isAfter(new DateTime(2018,4,11,11,5))){
+                break;
+            }
+        }
+
+        File file_temp = new File(file.getAbsolutePath());
+        Writer fileWriter = null;
+        BufferedWriter bufferedWriter = null;
+
+        try {
+
+            fileWriter = new FileWriter(file_temp);
+            bufferedWriter = new BufferedWriter(fileWriter);
+
+            for (String line : validLines) {
+                line += System.getProperty("line.separator");
+                bufferedWriter.write(line);
+            }
+            Files.copy(file_temp.toPath(), Paths.get(LOGS_DIR, "\\" + file_temp.getName()),
+                StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.err.println("Error writing the file : ");
+            e.printStackTrace();
+        } finally {
+            if (bufferedWriter != null && fileWriter != null) {
+                try {
+                    bufferedWriter.close();
+                    fileWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                }
+
+            }
+
+        }
+
+    }
+
 }
