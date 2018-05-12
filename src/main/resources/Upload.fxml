@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXDatePicker?>
+<?import com.jfoenix.controls.JFXTimePicker?>
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane fx:id="uploadPane" cacheShape="false" centerShape="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="400.0" prefWidth="600.0" scaleShape="false" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.UploadController">
+    <stylesheets>
+        <URL value="@dark_blue.css" />
+    </stylesheets>
+    <children>
+        <Label layoutX="250.0" layoutY="86.0" text="Nazwa użytkownika :" />
+        <Separator layoutX="210.0" layoutY="103.0" prefHeight="3.0" prefWidth="187.0" style="-fx-background-color: black;" />
+        <TextField fx:id="userName" layoutX="209.0" layoutY="115.0" prefHeight="25.0" prefWidth="187.0" />
+        <Label layoutX="436.0" layoutY="160.0" text="Nazwy plików:" />
+        <Button fx:id="uploadButton" layoutX="243.0" layoutY="318.0" mnemonicParsing="false" onAction="#upload" prefHeight="45.0" prefWidth="114.0" text="Załaduj" />
+        <Hyperlink fx:id="Hyper" layoutX="206.0" layoutY="367.0" onAction="#openBrowser" text="Przejdź do przeglądarki">
+         <font>
+            <Font size="13.0" />
+         </font></Hyperlink>
+      <Separator layoutX="4.0" layoutY="177.0" prefHeight="3.0" prefWidth="592.0" />
+      <Separator layoutX="209.0" layoutY="30.0" prefHeight="3.0" prefWidth="187.0"  />
+      <Label layoutX="283.0" layoutY="14.0" text="Projekt :" />
+        <ChoiceBox fx:id="choiceBox" layoutX="211.0" layoutY="45.0" prefHeight="25.0" prefWidth="187.0" value="ca">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="ca" />
+                    <String fx:value="bzwbk_corpo" />
+                    <String fx:value="bzwbk_detal" />
+                    <String fx:value="plus" />
+                    <String fx:value="arab" />
+                    <String fx:value="nbk" />
+                    <String fx:value="bgz" />
+                </FXCollections>
+            </items>
+        </ChoiceBox>
+      <CheckBox fx:id="projectLock" layoutX="179.0" layoutY="119.0" mnemonicParsing="false" onAction="#lock" />
+      <TextField fx:id="area0" layoutX="400.0" layoutY="190.0" />
+      <Button fx:id="plus" layoutX="369.0" layoutY="190.0" mnemonicParsing="false" onAction="#addTextField" prefHeight="25.0" prefWidth="25.0" text="+" />
+      <Button fx:id="minus" layoutX="557.0" layoutY="190.0" mnemonicParsing="false" onAction="#subtractTextField" prefHeight="25.0" prefWidth="25.0" text="-" />
+      <Label layoutX="248.0" layoutY="160.0" text="Wybierz date:" />
+      <JFXDatePicker fx:id="date" defaultColor="#ff5400" layoutX="245.0" layoutY="190.0" prefWidth="120.0" promptText="Wybierz date" />
+      <JFXTimePicker fx:id="time0" defaultColor="#ff5400" layoutX="53.0" layoutY="190.0" prefHeight="25.0" prefWidth="149.0" promptText="Wybierz czas" />
+      <Button fx:id="tplus" layoutX="14.0" layoutY="190.0" mnemonicParsing="false" onAction="#addTime" prefHeight="25.0" prefWidth="25.0" text="+" />
+      <Button fx:id="tminus" layoutX="206.0" layoutY="192.0" mnemonicParsing="false" onAction="#subtractTime" prefHeight="25.0" prefWidth="25.0" text="-" />
+      <Label layoutX="53.0" layoutY="160.0" text="Wybierz czas:" />
+      <ChoiceBox layoutX="242.0" layoutY="237.0" prefHeight="25.0" prefWidth="114.0" value="1 min offset" fx:id="offset">
+          <items>
+              <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="1 min offset" />
+                  <String fx:value="2 min offset" />
+                  <String fx:value="3 min offset" />
+                  <String fx:value="4 min offset" />
+                  <String fx:value="5 min offset" />
+                  <String fx:value="6 min offset" />
+                  <String fx:value="7 min offset" />
+                  <String fx:value="8 min offset" />
+                  <String fx:value="9 min offset" />
+                  <String fx:value="10 min offset" />
+                  <String fx:value="11 min offset" />
+                  <String fx:value="12 min offset" />
+                  <String fx:value="13 min offset" />
+                  <String fx:value="14 min offset" />
+                  <String fx:value="15 min offset" />
+              </FXCollections>
+          </items>
+      </ChoiceBox>
+    </children>
+</Pane>
