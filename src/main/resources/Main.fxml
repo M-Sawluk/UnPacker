@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.Pane?>
+<?import java.net.URL?>
 <Pane maxHeight="-Infinity" fx:id="mainPane" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.UploadController">
+    <stylesheets>
+        <URL value="@dark_blue.css" />
+    </stylesheets>
     <children>
         <Pane fx:id="pane">
             <fx:include fx:id="upload" source="Upload.fxml" />

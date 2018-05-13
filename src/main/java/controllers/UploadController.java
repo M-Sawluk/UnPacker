@@ -73,7 +73,7 @@ public class UploadController implements Initializable {
     private WebView webView;
 
     @FXML
-    public void upload(ActionEvent event) {
+    public void upload(ActionEvent event){
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters()
                 .addAll(new FileChooser.ExtensionFilter("Log files", "*.*"));
@@ -92,11 +92,8 @@ public class UploadController implements Initializable {
         Screen primary = Screen.getPrimary();
         Rectangle2D bounds = primary.getVisualBounds();
 
-        for (Node node : uploadPane.getChildren()) {
-            if(node.getId() == null || !node.getId().equalsIgnoreCase("webview")) {
-                node.setVisible(false);
-            }
-        }
+        uploadPane.getChildren().forEach(i->i.setVisible(false));
+        webView.setVisible(true);
         fileBeatStatus.setVisible(true);
         fileBeatStatus.setLayoutX(1850);
         fileBeatStatus.setLayoutY(990);
@@ -147,9 +144,7 @@ public class UploadController implements Initializable {
         saveProp(FILES_NUMBER_PROP, String.valueOf(FILE_AREAS_COUNT - 1));
     }
 
-    public void addTextField(ActionEvent actionEvent) {
-        addTextFieldWithContent("");
-    }
+    public void addTextField(ActionEvent actionEvent) { addTextFieldWithContent(""); }
 
     public void subtractTextField(ActionEvent actionEvent) {
         ObservableList<Node> children = uploadPane.getChildren();
@@ -231,9 +226,8 @@ public class UploadController implements Initializable {
         Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
     }
 
-    private Thread startFileBeat(){
-        return new Thread(FileBeat::startFilebeat);
-    }
+    private Thread startFileBeat(){ return new Thread(FileBeat::startFilebeat); }
+
     private Thread startCopyingThread(Optional<List<Time>> times, Optional<List<String>> fileNames, List<File> uploadedFiles) {
         return new Thread(()->startCopying(uploadedFiles, fileNames, times));
     }

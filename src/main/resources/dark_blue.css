@@ -68,3 +68,11 @@
 .separator {
     -fx-background-color: black;
 }
+
+.label {
+-fx-text-fill: #b7b9bc;
+}
+
+.root {
+  -fx-background-color: #484e56;
+}
