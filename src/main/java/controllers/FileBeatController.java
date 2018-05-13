@@ -18,7 +18,7 @@ import static utils.FileBeat.checkIfProcessIsRunning;
 import static utils.FileBeat.startFilebeat;
 import static utils.PropertiesUtils.*;
 
-public class FileBeatController implements Initializable {
+public class FileBeatController{
     private static final String EMPTY_TEXT = "Specify Beats Location";
     private static final String LOCATION_PROP_NAME = "location";
     private static final String LOCATION_LOCK_PROP_NAME = "location_lock";
@@ -54,16 +54,7 @@ public class FileBeatController implements Initializable {
 
     @FXML
     public void startFileBeat(ActionEvent actionEvent) {
-        startFilebeat(beatLocation.getText());
-    }
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        beatLocation.clear();
-        loadTextArea(beatLocation, LOCATION_PROP_NAME, EMPTY_TEXT);
-        loadCheckBox(lockLocation, LOCATION_LOCK_PROP_NAME);
-        lockSelectedControls();
-        fileBeatNotifier().start();
+//        startFilebeat(beatLocation.getText());
     }
 
     private void lockSelectedControls() {
@@ -78,19 +69,6 @@ public class FileBeatController implements Initializable {
         }
     }
 
-    private Thread fileBeatNotifier() {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    if (checkIfProcessIsRunning(PROCESS_NAME)) {
-                        indicator.setFill(Color.GREEN);
-                    } else {
-                        indicator.setFill(Color.RED);
-                    }
-                }
-            }
-        });
-    }
+
 
 }

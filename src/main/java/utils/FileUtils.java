@@ -1,5 +1,7 @@
 package utils;
 
+import exception.CustomException;
+import javafx.scene.layout.Pane;
 import model.Time;
 import model.TimeWithFiles;
 import org.apache.commons.io.IOUtils;
@@ -19,13 +21,14 @@ import static utils.TimeUtils.prepareTimesWithFiles;
 
 @SuppressWarnings("ALL")
 public final class FileUtils {
-    private static final String LOGS_LOCATION = "logs_location";
+    private static final String LOGS_LOCATION = "location";
     private static final String DATE_REGEX = "\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\,\\d{3}\\+\\d{2}:\\d{2}\\].* |" +
             "\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\,\\d{3}.*";
-    private static String LOGS_DIR = loadProperties(LOGS_LOCATION) + "\\logz";
-    private static String TEMP_DIR = loadProperties(LOGS_LOCATION) + "\\temps";
+    private static String LOGS_DIR = loadProperties(LOGS_LOCATION) + "\\FileBeat\\logz";
+    private static String TEMP_DIR = loadProperties(LOGS_LOCATION) + "\\FileBeat\\tempFiles";
     private static List<String> FILES_TO_UPLOAD;
     private static List<TimeWithFiles> TIME_WITH_FILES;
+    private static Pane pane;
 
     static void clearDir(String path) {
         try {
@@ -48,8 +51,8 @@ public final class FileUtils {
             for (File file : files) {
                 try {
                     copyUploadedFiles(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                        new CustomException(pane, e);
                 }
             }
         }
@@ -131,6 +134,7 @@ public final class FileUtils {
     private static List<TimeWithFiles> getTimes(File file) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(file, "r");
         String firstLine = raf.readLine();
+        raf.close();
         String name = file.getName();
         if (firstLine.matches(DATE_REGEX)) {
             LocalDateTime dateTime = getDate(firstLine);
@@ -203,5 +207,10 @@ public final class FileUtils {
         if (time == null) return "TIME_NOT_FOUND";
         return time.toString().replace(':', '.');
     }
+
+    public static void setPane(Pane pane) {
+        FileUtils.pane = pane;
+    }
+
 
 }

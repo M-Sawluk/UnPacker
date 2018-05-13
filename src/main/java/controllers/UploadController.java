@@ -2,23 +2,25 @@ package controllers;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import exception.GlobalExceptionHandler;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import javafx.stage.Screen;
+import javafx.stage.Window;
 import model.Time;
-import java.awt.*;
+import utils.FileBeat;
+
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -28,6 +30,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import static utils.FileBeat.fileBeatNotifier;
+import static utils.FileUtils.setPane;
 import static utils.FileUtils.startCopying;
 import static utils.PropertiesUtils.*;
 import static utils.TimeUtils.prepareTimePoints;
@@ -63,6 +67,10 @@ public class UploadController implements Initializable {
     private Pane uploadPane;
     @FXML
     private JFXDatePicker date;
+    @FXML
+    private Label fileBeatStatus;
+    @FXML
+    private WebView webView;
 
     @FXML
     public void upload(ActionEvent event) {
@@ -73,18 +81,32 @@ public class UploadController implements Initializable {
         Optional<List<Time>> times = gatherTimePoints();
         Optional<List<String>> fileNames = gatherFileNames();
         savePops();
-        startCopying(uploadedFiles, fileNames, times);
+        startFileBeat().start();
+        startCopyingThread(times, fileNames, uploadedFiles).start();
+        openBrowser(event);
     }
 
-    @FXML
-    void openBrowser(ActionEvent actionEvent) {
-        try {
-            Desktop.getDesktop().browse(new URL("http://logs.tools.finanteq.com:5601/app/kibana#/management/kibana/index?_g=()").toURI());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+    void openBrowser(ActionEvent actionEvent){
+        Node source = (Node) actionEvent.getSource();
+        Window window = source.getScene().getWindow();
+        Screen primary = Screen.getPrimary();
+        Rectangle2D bounds = primary.getVisualBounds();
+
+        for (Node node : uploadPane.getChildren()) {
+            if(node.getId() == null || !node.getId().equalsIgnoreCase("webview")) {
+                node.setVisible(false);
+            }
         }
+        fileBeatStatus.setVisible(true);
+        fileBeatStatus.setLayoutX(1850);
+        fileBeatStatus.setLayoutY(990);
+        window.setX(bounds.getMinX());
+        window.setY(bounds.getMinY());
+        window.setWidth(bounds.getMaxX());
+        window.setHeight(bounds.getMaxY());
+        WebEngine engine = webView.getEngine();
+        engine.setJavaScriptEnabled(true);
+        engine.load("http://localhost:5601/app/kibana#/home?_g=()");
     }
 
     public void lock(ActionEvent actionEvent) {
@@ -111,6 +133,9 @@ public class UploadController implements Initializable {
             for (int i = 0; i < split.length - 1; i++) {
                 addTextFieldWithContent(split[i + 1]);
             }
+            setGlobalExceptionHandler();
+            setPane(uploadPane);
+            fileBeatNotifier(fileBeatStatus).start();
         }
     }
 
@@ -200,4 +225,17 @@ public class UploadController implements Initializable {
         else
             return Optional.of(files);
     }
+
+    private void setGlobalExceptionHandler() {
+        GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler(uploadPane);
+        Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
+    }
+
+    private Thread startFileBeat(){
+        return new Thread(FileBeat::startFilebeat);
+    }
+    private Thread startCopyingThread(Optional<List<Time>> times, Optional<List<String>> fileNames, List<File> uploadedFiles) {
+        return new Thread(()->startCopying(uploadedFiles, fileNames, times));
+    }
+
 }
