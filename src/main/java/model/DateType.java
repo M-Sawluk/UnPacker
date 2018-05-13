@@ -3,8 +3,8 @@ package model;
 import java.time.format.DateTimeFormatter;
 
 public enum DateType {
-    CA (DateTimeFormatter.ofPattern("[yyyy-MM-dd HH:mm:ss,SSSZZ]"), 31),
-    OTHER (DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS"), 23);
+    WITH_BRACKETS(DateTimeFormatter.ofPattern("'['yyyy-MM-dd HH:mm:ss,SSSZZZZZ']'"), 31),
+    WITHOUT_BRACKETS(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS"), 23);
 
     private DateTimeFormatter formatter;
     private int dateOffset;

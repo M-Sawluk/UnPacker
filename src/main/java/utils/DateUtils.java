@@ -6,19 +6,18 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public final class DateUtils {
-    private static final String OTHER_DATE_REGEX = "\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}\\:\\d{2}\\:\\d{2}\\:\\d{3}.*";
-    private static final String CA_DATE_REGEX = "(\\[\\d{4}\\-\\d{2}\\-\\d{2}\\d{2}\\:\\d{2}\\:\\d{2}\\:\\d{3}\\].*)|(\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}\\:\\d{2}\\:\\d{2}\\,\\d{3}\\+\\d{2}\\:\\d{2}\\].*)";
+    private static final String BRACKETSLESS_DATE_REGEX = "\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}\\:\\d{2}\\:\\d{2}\\:\\d{3}.*";
 
     public static DateType getDateType (String logFirstLine) {
-        if(logFirstLine.matches(OTHER_DATE_REGEX)) {
-            return DateType.OTHER;
+        if(logFirstLine.matches(BRACKETSLESS_DATE_REGEX)) {
+            return DateType.WITHOUT_BRACKETS;
         } else {
-            return DateType.CA;
+            return DateType.WITH_BRACKETS;
         }
     }
 
     public static LocalDateTime getDate(String line) {
-        DateType dateType = DateUtils.getDateType(line);
+        DateType dateType = getDateType(line);
         DateTimeFormatter formatter = dateType.getFormatter();
         int dateOffset = dateType.getDateOffset();
         return LocalDateTime.parse(line.substring(0, dateOffset), formatter);

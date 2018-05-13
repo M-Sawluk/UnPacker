@@ -1,17 +1,14 @@
 package utils;
 
-import model.DateType;
 import model.Time;
 import model.TimeWithFiles;
 import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -90,7 +87,7 @@ public final class FileUtils {
                 } else {
                     String name = tempFile.getName();
                     if (isFileToUpload(name) && !name.endsWith(".sha256sum")) {
-                        if (name.contains(".log")) {
+                        if (name.endsWith(".log")) {
                             copyFilesToDestinationFolder(tempFile, "");
                         } else {
                             copyFilesToDestinationFolder(tempFile, ".log");
@@ -106,10 +103,11 @@ public final class FileUtils {
         if (TIME_WITH_FILES == null || TIME_WITH_FILES.isEmpty()) {
             Files.copy(file.toPath(), Paths.get(LOGS_DIR + "\\" + file.getName() + suffix),
                     StandardCopyOption.REPLACE_EXISTING);
-        }
-        List<TimeWithFiles> times = getTimes(file);
-        if (!times.isEmpty()) {
-            copyLinesByTimeOffest(file, times);
+        } else {
+            List<TimeWithFiles> times = getTimes(file);
+            if (!times.isEmpty()) {
+                copyLinesByTimeOffest(file, times);
+            }
         }
     }
 
@@ -140,27 +138,46 @@ public final class FileUtils {
                     .stream()
                     .filter(i -> dateTime.isEqual(i.getTime().getSelectedTime().toLocalDate().atStartOfDay()) ||
                             dateTime.isAfter(i.getTime().getSelectedTime().toLocalDate().atStartOfDay()))
-                    .peek(i -> i.setUploaded(name))
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
 
     private static void copyLinesByTimeOffest(File file, List<TimeWithFiles> times) throws IOException {
+        String name = file.getName();
+        LocalDateTime logDateTime = null;
+        LocalDateTime from = null;
+        LocalDateTime to = null;
+
         List<String> lines = Files.readAllLines(file.toPath());
         List<String> validLines = new LinkedList<>();
-
+        boolean isDateOfLinesValid = false;
         for (TimeWithFiles time : times) {
+            if(time.isFileUploaded(name)) continue;
             for (String string : lines) {
-                LocalDateTime dateTime = getDate(string);
-                if (dateTime.isAfter(time.getTime().getFrom()) && dateTime.isBefore(time.getTime().getTo())) {
+                if (string.matches(DATE_REGEX)) {
+                    logDateTime = getDate(string);
+                    if (logDateTime.isAfter(time.getTime().getFrom()) && logDateTime.isBefore(time.getTime().getTo())) {
+                        if (from == null) from = logDateTime;
+                        to = logDateTime;
+                        isDateOfLinesValid = true;
+                        validLines.add(string);
+                        time.setUploaded(name);
+                    } else if (logDateTime.isAfter(time.getTime().getTo())) {
+                        break;
+                    }
+                } else if (isDateOfLinesValid) {
                     validLines.add(string);
-                } else if (dateTime.isAfter(time.getTime().getTo())) {
-                    break;
                 }
             }
+            isDateOfLinesValid = false;
         }
-        File file_temp = new File(LOGS_DIR, "\\" + file.getName());
+        if(!validLines.isEmpty())
+        saveLines(file, from, to, validLines, name);
+    }
+
+    private static void saveLines(File file, LocalDateTime from, LocalDateTime to, List<String> validLines, String name) {
+        File file_temp = new File(LOGS_DIR, "\\" + createPrettyFileName(file) + "_from_" + escapeColons(from) + "_to_" + escapeColons(to) + ".log");
         try {
             FileWriter writer = new FileWriter(file_temp);
             for (String str : validLines) {
@@ -171,48 +188,20 @@ public final class FileUtils {
             System.err.println("Error writing the file : ");
             e.printStackTrace();
         }
-
     }
 
-//    private static void copyUploadedFiles(File file) throws IOException {
-//        if (file.getName().endsWith(".zip")) {
-//            java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(file);
-//            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-//            while (entries.hasMoreElements()) {
-//                ZipEntry zipEntry = entries.nextElement();
-//                if (!zipEntry.isDirectory()) {
-//                    String entryName = zipEntry.getName();
-//                    int i = entryName.lastIndexOf(".");
-//                    File tempFile = stream2file(zipFile.getInputStream(zipEntry), entryName.substring(0, i), entryName.substring(i));
-//                    if (entryName.endsWith(".zip")) {
-//                        copyUploadedFiles(tempFile);
-//                    } else {
-//                        if (isFileToUpload(tempFile.getName()) && !tempFile.getName().endsWith(".sha256sum")) {
-//                            if (tempFile.getName().contains(".log") && getTimes(tempFile)) {
-//                                Files.copy(tempFile.toPath(), Paths.get(LOGS_DIR, "\\" + tempFile.getName()),
-//                                        StandardCopyOption.REPLACE_EXISTING);
-//                                copyLinesByTimeOffest(tempFile);
-//                            } else if (getTimes(tempFile)) {
-//                                Files.copy(tempFile.toPath(), Paths.get(LOGS_DIR + "\\" + tempFile.getName() + ".log"),
-//                                        StandardCopyOption.REPLACE_EXISTING);
-//                                copyLinesByTimeOffest(tempFile);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            zipFile.close();
-//        } else if (file.isDirectory()) {
-//            File[] files = file.listFiles();
-//            for (File unziped : files) {
-//                copyUploadedFiles(unziped);
-//            }
-//        } else if (isFileToUpload(file.getName())) {
-//            if (!file.getName().endsWith(".log")) {
-//                Files.copy(file.toPath(), Paths.get(LOGS_DIR + "\\" + file.getName() + ".log"), StandardCopyOption.REPLACE_EXISTING);
-//            }
-//            Files.copy(file.toPath(), Paths.get(LOGS_DIR + "\\" + file.getName()), StandardCopyOption.REPLACE_EXISTING);
-//        }
-//    }
+    private static String createPrettyFileName(File file) {
+        String name = file.getName();
+        return FILES_TO_UPLOAD
+                .stream()
+                .filter(i -> name.contains(i))
+                .findFirst()
+                .orElse("NAME NOT FOUND");
+    }
+
+    private static String escapeColons(LocalDateTime time) {
+        if (time == null) return "TIME_NOT_FOUND";
+        return time.toString().replace(':', '.');
+    }
 
 }
