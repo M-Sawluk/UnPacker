@@ -89,7 +89,7 @@ public class UploadController implements Initializable {
         savePops();
         startFileBeat().start();
         startCopyingThread(times, fileNames, uploadedFiles).start();
-//        openBrowser(event);
+        openBrowser(event);
     }
 
     void openBrowser(ActionEvent actionEvent) {
