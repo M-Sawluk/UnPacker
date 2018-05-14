@@ -44,6 +44,8 @@ public class UploadController implements Initializable {
     private static final String FILES_NUMBER_PROP = "file_number";
     private static final String FILES_NAMES_PROP = "file_names";
     private static final String USER_EMPTY = "Enter name";
+    private static final String LOG_LOCATION_PROP = "location";
+    private static final String KIBANA_URL_PROP = "kibana_url";
     private int FILE_AREAS_COUNT = 1;
     private int TIME_COUNT = 1;
     private int AREAS_X = 400;
@@ -71,9 +73,13 @@ public class UploadController implements Initializable {
     private Label fileBeatStatus;
     @FXML
     private WebView webView;
+    @FXML
+    private TextField logsLocation;
+    @FXML
+    private TextField kibanaLocation;
 
     @FXML
-    public void upload(ActionEvent event){
+    public void upload(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters()
                 .addAll(new FileChooser.ExtensionFilter("Log files", "*.*"));
@@ -83,16 +89,16 @@ public class UploadController implements Initializable {
         savePops();
         startFileBeat().start();
         startCopyingThread(times, fileNames, uploadedFiles).start();
-        openBrowser(event);
+//        openBrowser(event);
     }
 
-    void openBrowser(ActionEvent actionEvent){
+    void openBrowser(ActionEvent actionEvent) {
         Node source = (Node) actionEvent.getSource();
         Window window = source.getScene().getWindow();
         Screen primary = Screen.getPrimary();
         Rectangle2D bounds = primary.getVisualBounds();
 
-        uploadPane.getChildren().forEach(i->i.setVisible(false));
+        uploadPane.getChildren().forEach(i -> i.setVisible(false));
         webView.setVisible(true);
         fileBeatStatus.setVisible(true);
         fileBeatStatus.setLayoutX(1850);
@@ -103,7 +109,7 @@ public class UploadController implements Initializable {
         window.setHeight(bounds.getMaxY());
         WebEngine engine = webView.getEngine();
         engine.setJavaScriptEnabled(true);
-        engine.load("http://localhost:5601/app/kibana#/home?_g=()");
+        engine.load("http:/"+loadProperties(KIBANA_URL_PROP)+":5601/app/kibana#/home?_g=()");
     }
 
     public void lock(ActionEvent actionEvent) {
@@ -133,6 +139,8 @@ public class UploadController implements Initializable {
             setGlobalExceptionHandler();
             setPane(uploadPane);
             fileBeatNotifier(fileBeatStatus).start();
+            logsLocation.setText(loadProperties(LOG_LOCATION_PROP));
+            kibanaLocation.setText(loadProperties(KIBANA_URL_PROP));
         }
     }
 
@@ -142,9 +150,13 @@ public class UploadController implements Initializable {
         saveProp(PROJECT_PROP_NAME, choiceBox.getValue());
         saveProp(PROJECT_PROP_LOCK, String.valueOf(projectLock.isSelected()));
         saveProp(FILES_NUMBER_PROP, String.valueOf(FILE_AREAS_COUNT - 1));
+        saveProp(KIBANA_URL_PROP, kibanaLocation.getText());
+        saveProp(LOG_LOCATION_PROP, logsLocation.getText());
     }
 
-    public void addTextField(ActionEvent actionEvent) { addTextFieldWithContent(""); }
+    public void addTextField(ActionEvent actionEvent) {
+        addTextFieldWithContent("");
+    }
 
     public void subtractTextField(ActionEvent actionEvent) {
         ObservableList<Node> children = uploadPane.getChildren();
@@ -215,7 +227,7 @@ public class UploadController implements Initializable {
                 files.add(fileName);
             }
         }
-        if(fileNames.isEmpty())
+        if (fileNames.isEmpty())
             return Optional.empty();
         else
             return Optional.of(files);
@@ -226,10 +238,12 @@ public class UploadController implements Initializable {
         Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
     }
 
-    private Thread startFileBeat(){ return new Thread(FileBeat::startFilebeat); }
+    private Thread startFileBeat() {
+        return new Thread(FileBeat::startFilebeat);
+    }
 
     private Thread startCopyingThread(Optional<List<Time>> times, Optional<List<String>> fileNames, List<File> uploadedFiles) {
-        return new Thread(()->startCopying(uploadedFiles, fileNames, times));
+        return new Thread(() -> startCopying(uploadedFiles, fileNames, times));
     }
 
 }

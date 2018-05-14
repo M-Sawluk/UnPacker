@@ -75,4 +75,39 @@
 
 .root {
   -fx-background-color: #484e56;
+  -fx-accent: darkgray;
+  -fx-focus-color: darkgray;
+}
+
+.menu-item .label {
+    -fx-text-fill: #b7b9bc;
+}
+
+.menu-item:focused {
+     -fx-background-color: darkgray;
+     -fx-background-insets: 0, 1, 2;
+     -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4;
+}
+
+.menu-item:focused .label {
+    -fx-text-fill: #ff5400;
+}
+
+.context-menu{
+    -fx-skin: "com.sun.javafx.scene.control.skin.ContextMenuSkin";
+    -fx-background-color: #484e56;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4;
+/*    -fx-padding: 0.666667em 0.083333em 0.666667em 0.083333em;  8 1 8 1 */
+    -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; /* 4 1 8 1 */
+    -fx-border-color: black;
+    -fx-border-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4;
+}
+
+#menuBar {
+    -fx-background-color: #484e56;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4;
+/*    -fx-padding: 0.666667em 0.083333em 0.666667em 0.083333em;  8 1 8 1 */
+    -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; /* 4 1 8 1 */
 }

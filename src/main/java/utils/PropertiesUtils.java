@@ -1,8 +1,5 @@
 package utils;
 
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.Labeled;
 import javafx.scene.control.TextInputControl;
 
 import java.io.File;
@@ -15,9 +12,10 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 public final class PropertiesUtils {
+    private static final String LOCATION = System.getProperty("java.io.tmpdir")+"\\logz.properties";
 
     public static void saveProp(String key, String value) {
-        Path logPropsFilePath = Paths.get("logz.properties");
+        Path logPropsFilePath = Paths.get(LOCATION);
         Properties properties = new Properties();
         FileInputStream resourceAsStream = null;
         try {
@@ -43,7 +41,7 @@ public final class PropertiesUtils {
     }
 
     public static String loadProperties(String propName) {
-        Path logPropsFilePath = Paths.get("logz.properties");
+        Path logPropsFilePath = Paths.get(LOCATION);
         Properties properties = new Properties();
         FileInputStream resourceAsStream = null;
         try {
@@ -69,19 +67,14 @@ public final class PropertiesUtils {
     }
 
     private static void createPropFile() throws IOException {
-        Path logPropsFilePath = Paths.get("logz.properties");
+        Path logPropsFilePath = Paths.get(LOCATION);
         FileOutputStream fileOutputStream = new FileOutputStream(logPropsFilePath.toFile());
         Properties properties = new Properties();
         properties.setProperty("location", "");
         properties.setProperty("files", "");
         properties.setProperty("user", "");
+        properties.setProperty("kibana_url","logs.tools.finanteq.com");
         properties.store(fileOutputStream, null);
-    }
-
-    public static void loadCheckBox(CheckBox checkBox, String propName) {
-        String prop = loadProperties(propName);
-        boolean value = Boolean.parseBoolean(prop);
-        checkBox.setSelected(value);
     }
 
     public static void loadTextArea(TextInputControl control, String propName, String emptyText) {
