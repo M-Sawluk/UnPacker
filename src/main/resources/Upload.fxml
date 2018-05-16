@@ -21,7 +21,7 @@
     <stylesheets>
         <URL value="@style.css" />
     </stylesheets>
-    <WebView fx:id="webView" visible="false" minWidth="1920" minHeight="1080" />
+    <WebView fx:id="webView" visible="false" />
     <children>
         <Label layoutX="250.0" layoutY="86.0" text="Nazwa użytkownika :" />
         <Separator layoutX="210.0" layoutY="103.0" prefHeight="3.0" prefWidth="187.0" style="-fx-background-color: black;" />

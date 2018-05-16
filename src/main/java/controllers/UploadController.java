@@ -107,6 +107,10 @@ public class UploadController implements Initializable {
         window.setY(bounds.getMinY());
         window.setWidth(bounds.getMaxX());
         window.setHeight(bounds.getMaxY());
+        webView.setPrefWidth(bounds.getMaxX());
+        webView.setPrefHeight(bounds.getMaxY());
+        webView.setMaxHeight(bounds.getMaxY());
+        webView.setMaxWidth(bounds.getMaxX());
         WebEngine engine = webView.getEngine();
         engine.setJavaScriptEnabled(true);
         engine.load("http:/"+loadProperties(KIBANA_URL_PROP)+":5601/app/kibana#/home?_g=()");
