@@ -4,11 +4,11 @@ import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import net.lingala.zip4j.core.ZipFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static utils.FileUtils.clearDir;
 import static utils.PropertiesUtils.loadProperties;
@@ -26,13 +26,11 @@ public final class FileBeat {
         try {
             UNZIP_LOCATION = loadProperties(LOCATION)+"\\";
             BEATS_DIR = UNZIP_LOCATION + "FileBeat";
-            clearDir(BEATS_DIR + "\\tempFiles");
-            clearDir(BEATS_DIR + "\\logz");
             if (checkIfProcessIsRunning(PROCESS_NAME)) {
                 Runtime.getRuntime().exec("taskkill /F /IM filebeat.exe");
                 Thread.sleep(200);
             }
-            unZipFileBeat(FileBeat.class.getClass().getResource("/filebeat").getPath(), UNZIP_LOCATION);
+            unzip(FileBeat.class.getResourceAsStream("/filebeat"), new File(UNZIP_LOCATION));
             createFileBeatYml(BEATS_DIR);
 
             ProcessBuilder cmd = new ProcessBuilder("cmd", "/c", BEATS_DIR + "\\filebeat.exe  -c " + BEATS_DIR + "\\filebeat.yml");
@@ -79,19 +77,6 @@ public final class FileBeat {
         Files.write(Paths.get(dir + "\\filebeat.yml"), builder.toString().getBytes());
     }
 
-    static void unZipFileBeat(String source, String destination) {
-        try {
-            ZipFile zipFile = new ZipFile(source);
-            try {
-                zipFile.extractAll(destination+"\\");
-            } catch (net.lingala.zip4j.exception.ZipException e) {
-                e.printStackTrace();
-            }
-        } catch (net.lingala.zip4j.exception.ZipException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static Thread fileBeatNotifier(Label label) {
         return new Thread(new Runnable() {
             @Override
@@ -105,5 +90,38 @@ public final class FileBeat {
                 }
             }
         });
+    }
+
+    public static void unzip(InputStream source, File target) throws IOException {
+        final ZipInputStream zipStream = new ZipInputStream(source);
+        ZipEntry nextEntry;
+        while ((nextEntry = zipStream.getNextEntry()) != null) {
+            final String name = nextEntry.getName();
+            // only extract files
+            if (!name.endsWith("/")) {
+                final File nextFile = new File(target, name);
+
+                // create directories
+                final File parent = nextFile.getParentFile();
+                if (parent != null) {
+                    parent.mkdirs();
+                }
+
+                // write file
+                try (OutputStream targetStream = new FileOutputStream(nextFile)) {
+                    copy(zipStream, targetStream);
+                }
+            }
+        }
+    }
+
+    private static void copy(final InputStream source, final OutputStream target) throws IOException {
+        final int bufferSize = 4 * 1024;
+        final byte[] buffer = new byte[bufferSize];
+
+        int nextCount;
+        while ((nextCount = source.read(buffer)) >= 0) {
+            target.write(buffer, 0, nextCount);
+        }
     }
 }

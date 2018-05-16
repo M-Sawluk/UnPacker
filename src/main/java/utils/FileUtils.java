@@ -44,6 +44,8 @@ public final class FileUtils {
     }
 
     public static void startCopying(List<File> files, Optional<List<String>> fileNames, Optional<List<Time>> times) {
+        clearDir(LOGS_DIR);
+        clearDir(TEMP_DIR);
         if (files != null && files.size() > 0 && fileNames.isPresent()) {
             String logsDir = loadProperties(LOGS_LOCATION);
             FILES_TO_UPLOAD = fileNames.get();
@@ -52,7 +54,7 @@ public final class FileUtils {
                 try {
                     copyUploadedFiles(file);
                 } catch (Exception e) {
-                        new CustomException(pane, e);
+                    new CustomException(pane, e);
                 }
             }
         }
@@ -157,7 +159,7 @@ public final class FileUtils {
         List<String> validLines = new LinkedList<>();
         boolean isDateOfLinesValid = false;
         for (TimeWithFiles time : times) {
-            if(time.isFileUploaded(name)) continue;
+            if (time.isFileUploaded(name)) continue;
             for (String string : lines) {
                 if (string.matches(DATE_REGEX)) {
                     logDateTime = getDate(string);
@@ -176,8 +178,8 @@ public final class FileUtils {
             }
             isDateOfLinesValid = false;
         }
-        if(!validLines.isEmpty())
-        saveLines(file, from, to, validLines, name);
+        if (!validLines.isEmpty())
+            saveLines(file, from, to, validLines, name);
     }
 
     private static void saveLines(File file, LocalDateTime from, LocalDateTime to, List<String> validLines, String name) {
