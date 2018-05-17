@@ -2,7 +2,9 @@ package utils;
 
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
+import log.AppLogger;
 import net.lingala.zip4j.core.ZipFile;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -14,6 +16,7 @@ import static utils.FileUtils.clearDir;
 import static utils.PropertiesUtils.loadProperties;
 
 public final class FileBeat {
+    private static final Logger LOGGER = AppLogger.getLogger();
     private static final String USER_NAME_PROP = "user";
     private static final String PROJECT_NAME_PROP = "project";
     private static final String PROCESS_NAME = "filebeat";
@@ -24,7 +27,7 @@ public final class FileBeat {
 
     public static void startFilebeat() {
         try {
-            UNZIP_LOCATION = loadProperties(LOCATION)+"\\";
+            UNZIP_LOCATION = loadProperties(LOCATION) + "\\";
             BEATS_DIR = UNZIP_LOCATION + "FileBeat";
             if (checkIfProcessIsRunning(PROCESS_NAME)) {
                 Runtime.getRuntime().exec("taskkill /F /IM filebeat.exe");
@@ -35,10 +38,8 @@ public final class FileBeat {
 
             ProcessBuilder cmd = new ProcessBuilder("cmd", "/c", BEATS_DIR + "\\filebeat.exe  -c " + BEATS_DIR + "\\filebeat.yml");
             cmd.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            LOGGER.error(e.getStackTrace());
         }
     }
 
@@ -54,7 +55,7 @@ public final class FileBeat {
             }
             input.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getStackTrace());
         }
         return pidInfo.toString().contains(processName);
     }
@@ -72,8 +73,8 @@ public final class FileBeat {
         builder.append("  multiline.negate: true" + "\n");
         builder.append("  multiline.match: after" + "\n");
         builder.append("output.logstash:" + "\n");
-        builder.append("  hosts: [\""+loadProperties(KIBANA_URL_PROP) +":5044\"]" + "\n");
-
+        builder.append("  hosts: [\"" + loadProperties(KIBANA_URL_PROP) + ":5044\"]" + "\n");
+        LOGGER.info("FileBEat.yml: " + builder);
         Files.write(Paths.get(dir + "\\filebeat.yml"), builder.toString().getBytes());
     }
 
@@ -101,14 +102,14 @@ public final class FileBeat {
             if (!name.endsWith("/")) {
                 final File nextFile = new File(target, name);
 
-                // create directories
                 final File parent = nextFile.getParentFile();
                 if (parent != null) {
                     parent.mkdirs();
+                    LOGGER.info("Creating dir: " + parent);
                 }
 
-                // write file
                 try (OutputStream targetStream = new FileOutputStream(nextFile)) {
+                    LOGGER.info("Copying: " + nextFile.getName());
                     copy(zipStream, targetStream);
                 }
             }

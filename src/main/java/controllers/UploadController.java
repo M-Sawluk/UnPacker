@@ -2,7 +2,6 @@ package controllers;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import exception.GlobalExceptionHandler;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,7 +16,9 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Window;
+import log.AppLogger;
 import model.Time;
+import org.apache.log4j.Logger;
 import utils.FileBeat;
 
 import java.io.File;
@@ -140,7 +141,6 @@ public class UploadController implements Initializable {
             for (int i = 0; i < split.length - 1; i++) {
                 addTextFieldWithContent(split[i + 1]);
             }
-            setGlobalExceptionHandler();
             setPane(uploadPane);
             fileBeatNotifier(fileBeatStatus).start();
             logsLocation.setText(loadProperties(LOG_LOCATION_PROP));
@@ -217,8 +217,8 @@ public class UploadController implements Initializable {
                 .filter(i -> i.getId() != null && i.getId().contains("time"))
                 .map(i -> ((JFXTimePicker) i).getValue())
                 .collect(Collectors.toList());
-
-        return Optional.of(prepareTimePoints(datee, localTimes, offset.getValue()));
+        List<Time> time = prepareTimePoints(datee, localTimes, offset.getValue());
+        return Optional.of(time);
     }
 
     private Optional<List<String>> gatherFileNames() {
@@ -235,11 +235,6 @@ public class UploadController implements Initializable {
             return Optional.empty();
         else
             return Optional.of(files);
-    }
-
-    private void setGlobalExceptionHandler() {
-        GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler(uploadPane);
-        Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler);
     }
 
     private Thread startFileBeat() {

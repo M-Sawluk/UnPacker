@@ -1,10 +1,11 @@
 package utils;
 
-import exception.CustomException;
 import javafx.scene.layout.Pane;
+import log.AppLogger;
 import model.Time;
 import model.TimeWithFiles;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -21,6 +22,7 @@ import static utils.TimeUtils.prepareTimesWithFiles;
 
 @SuppressWarnings("ALL")
 public final class FileUtils {
+    private static final Logger LOGGER = AppLogger.getLogger();
     private static final String LOGS_LOCATION = "location";
     private static final String DATE_REGEX = "\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\,\\d{3}\\+\\d{2}:\\d{2}\\].* |" +
             "\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\,\\d{3}.*";
@@ -39,7 +41,7 @@ public final class FileUtils {
                 new File(path).mkdirs();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getStackTrace());
         }
     }
 
@@ -54,7 +56,7 @@ public final class FileUtils {
                 try {
                     copyUploadedFiles(file);
                 } catch (Exception e) {
-                    new CustomException(pane, e);
+                    LOGGER.error(e.getStackTrace());
                 }
             }
         }
@@ -108,6 +110,7 @@ public final class FileUtils {
         if (TIME_WITH_FILES == null || TIME_WITH_FILES.isEmpty()) {
             Files.copy(file.toPath(), Paths.get(LOGS_DIR + "\\" + file.getName() + suffix),
                     StandardCopyOption.REPLACE_EXISTING);
+            LOGGER.info("Copying whole file: " + file.getName());
         } else {
             List<TimeWithFiles> times = getTimes(file);
             if (!times.isEmpty()) {
@@ -164,6 +167,7 @@ public final class FileUtils {
                 if (string.matches(DATE_REGEX)) {
                     logDateTime = getDate(string);
                     if (logDateTime.isAfter(time.getTime().getFrom()) && logDateTime.isBefore(time.getTime().getTo())) {
+                        LOGGER.info("Found matched lines: " + file.getName());
                         if (from == null) from = logDateTime;
                         to = logDateTime;
                         isDateOfLinesValid = true;
@@ -191,8 +195,7 @@ public final class FileUtils {
             }
             writer.close();
         } catch (IOException e) {
-            System.err.println("Error writing the file : ");
-            e.printStackTrace();
+            LOGGER.error(e.getStackTrace());
         }
     }
 
