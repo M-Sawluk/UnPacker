@@ -1,5 +1,21 @@
 package controllers;
 
+import static utils.FileBeat.fileBeatNotifier;
+import static utils.FileUtils.setPane;
+import static utils.FileUtils.startCopying;
+import static utils.PropertiesUtils.loadProperties;
+import static utils.PropertiesUtils.loadTextArea;
+import static utils.PropertiesUtils.saveProp;
+import static utils.TimeUtils.prepareTimePoints;
+import java.io.File;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.collections.ObservableList;
@@ -16,26 +32,8 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-import log.AppLogger;
 import model.Time;
-import org.apache.log4j.Logger;
 import utils.FileBeat;
-
-import java.io.File;
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-
-import static utils.FileBeat.fileBeatNotifier;
-import static utils.FileUtils.setPane;
-import static utils.FileUtils.startCopying;
-import static utils.PropertiesUtils.*;
-import static utils.TimeUtils.prepareTimePoints;
 
 public class UploadController implements Initializable {
     private static final String FLOOR = "_";

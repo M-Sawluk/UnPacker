@@ -1,19 +1,15 @@
 package utils;
 
-import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
-import log.AppLogger;
-import net.lingala.zip4j.core.ZipFile;
-import org.apache.log4j.Logger;
-
+import static utils.PropertiesUtils.loadProperties;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import static utils.FileUtils.clearDir;
-import static utils.PropertiesUtils.loadProperties;
+import org.apache.log4j.Logger;
+import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
+import log.AppLogger;
 
 public final class FileBeat {
     private static final Logger LOGGER = AppLogger.getLogger();

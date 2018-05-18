@@ -1,31 +1,30 @@
 package utils;
 
-import javafx.scene.layout.Pane;
-import log.AppLogger;
-import model.Time;
-import model.TimeWithFiles;
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-
+import static utils.DateUtils.getDate;
+import static utils.PropertiesUtils.loadProperties;
+import static utils.TimeUtils.prepareTimesWithFiles;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
-
-import static utils.DateUtils.getDate;
-import static utils.PropertiesUtils.loadProperties;
-import static utils.TimeUtils.prepareTimesWithFiles;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import javafx.scene.layout.Pane;
+import log.AppLogger;
+import model.Time;
+import model.TimeWithFiles;
 
 @SuppressWarnings("ALL")
 public final class FileUtils {
     private static final Logger LOGGER = AppLogger.getLogger();
     private static final String LOGS_LOCATION = "location";
-    private static final String DATE_REGEX = "\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\,\\d{3}\\+\\d{2}:\\d{2}\\].* |" +
-            "\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\,\\d{3}.*";
+    private static final String DATE_REGEX = "\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\,\\d{3}\\+\\d{2}:\\d{2}\\].*|" +
+            "\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\,\\d{3}.*|\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\:\\d{3}.*";
     private static String LOGS_DIR = loadProperties(LOGS_LOCATION) + "\\FileBeat\\logz";
     private static String TEMP_DIR = loadProperties(LOGS_LOCATION) + "\\FileBeat\\tempFiles";
     private static List<String> FILES_TO_UPLOAD;
@@ -210,7 +209,8 @@ public final class FileUtils {
 
     private static String escapeColons(LocalDateTime time) {
         if (time == null) return "TIME_NOT_FOUND";
-        return time.toString().replace(':', '.');
+        LocalTime localTime = time.toLocalTime();
+        return localTime.toString().replace(':', '.');
     }
 
     public static void setPane(Pane pane) {
