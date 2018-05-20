@@ -10,7 +10,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("controllers/Upload.fxml"));
         primaryStage.setTitle("UnPacker");
         Scene value = new Scene(root, 600, 400);
         primaryStage.setScene(value);

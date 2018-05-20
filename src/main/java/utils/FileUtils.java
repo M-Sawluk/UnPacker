@@ -29,7 +29,6 @@ public final class FileUtils {
     private static String TEMP_DIR = loadProperties(LOGS_LOCATION) + "\\FileBeat\\tempFiles";
     private static List<String> FILES_TO_UPLOAD;
     private static List<TimeWithFiles> TIME_WITH_FILES;
-    private static Pane pane;
 
     static void clearDir(String path) {
         try {
@@ -213,9 +212,6 @@ public final class FileUtils {
         return localTime.toString().replace(':', '.');
     }
 
-    public static void setPane(Pane pane) {
-        FileUtils.pane = pane;
-    }
 
 
 }

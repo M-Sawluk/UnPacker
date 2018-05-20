@@ -8,5 +8,9 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         logger.error(e.getCause().getCause().getMessage());
+        StackTraceElement[] stackTrace = e.getCause().getCause().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            logger.error(stackTraceElement);
+        }
     }
 }

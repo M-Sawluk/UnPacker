@@ -70,19 +70,13 @@ public final class PropertiesUtils {
         Path logPropsFilePath = Paths.get(LOCATION);
         FileOutputStream fileOutputStream = new FileOutputStream(logPropsFilePath.toFile());
         Properties properties = new Properties();
-        properties.setProperty("location", "");
+        properties.setProperty("location", "C:");
         properties.setProperty("files", "");
         properties.setProperty("user", "");
+        properties.setProperty("project", "ca");
+        properties.setProperty("file_names", ":");
         properties.setProperty("kibana_url","logs.tools.finanteq.com");
         properties.store(fileOutputStream, null);
     }
 
-    public static void loadTextArea(TextInputControl control, String propName, String emptyText) {
-        String prop = loadProperties(propName);
-        if (prop.isEmpty()) {
-            control.setText(emptyText);
-        } else if (control != null){
-            control.setText(prop);
-        }
-    }
 }
